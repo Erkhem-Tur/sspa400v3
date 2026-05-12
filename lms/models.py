@@ -44,9 +44,36 @@ class QuizResult(models.Model):
         return f"{self.user.username} – Mission {self.batch_index + 1}: {self.score}/{self.total}"
 
 
+RANK_CHOICES = [
+    ('', '-- Цолоо сонгоно уу --'),
+    ('Цэрэг', 'Цэрэг'),
+    ('Ефрейтор', 'Ефрейтор'),
+    ('Жанжин дэд', 'Жанжин дэд'),
+    ('Дэд ахлагч', 'Дэд ахлагч'),
+    ('Ахлагч', 'Ахлагч'),
+    ('Ахлах ахлагч', 'Ахлах ахлагч'),
+    ('Дэд офицер', 'Дэд офицер'),
+    ('Дэд дэслэгч', 'Дэд дэслэгч'),
+    ('Дэслэгч', 'Дэслэгч'),
+    ('Ахлах дэслэгч', 'Ахлах дэслэгч'),
+    ('Капитан', 'Капитан'),
+    ('Майор', 'Майор'),
+    ('Дэд хурандаа', 'Дэд хурандаа'),
+    ('Хурандаа', 'Хурандаа'),
+    ('Бригадын генерал', 'Бригадын генерал'),
+    ('Хошууч генерал', 'Хошууч генерал'),
+    ('Генерал лейтенант', 'Генерал лейтенант'),
+    ('Генерал полковник', 'Генерал полковник'),
+    ('Бусад', 'Бусад'),
+]
+
+
 class UserProgress(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='progress')
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name='members')
+    full_name = models.CharField(max_length=200, blank=True)
+    rank = models.CharField(max_length=100, blank=True, choices=RANK_CHOICES)
+    profile_complete = models.BooleanField(default=False)
     total_score = models.IntegerField(default=0)
     missions_completed = models.IntegerField(default=0)
     last_accessed = models.DateTimeField(auto_now=True)

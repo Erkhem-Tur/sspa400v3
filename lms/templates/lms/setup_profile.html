@@ -1,0 +1,49 @@
+{% extends 'lms/base.html' %}
+{% block title %}Мэдээлэл бөглөх – SSPA 400{% endblock %}
+{% block content %}
+<div style="max-width:480px;margin:40px auto;">
+  <div class="card">
+    <h1 style="text-align:center;margin-bottom:6px;">Мэдээлэл бөглөх</h1>
+    <p style="text-align:center;color:#64748b;font-size:14px;margin-bottom:24px;">Хичээл эхлэхийн өмнө мэдээллээ оруулна уу</p>
+
+    {% if form.non_field_errors %}
+      <div class="alert alert-error">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label>{{ form.full_name.label }}</label>
+        {{ form.full_name }}
+        {% if form.full_name.errors %}<div class="error">{{ form.full_name.errors }}</div>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label>{{ form.rank.label }}</label>
+        <select name="rank" style="width:100%;padding:10px 14px;border:1.5px solid #cbd5e1;border-radius:10px;font-size:14px;outline:none;background:#fff;">
+          {% for val, label in form.rank.field.choices %}
+          <option value="{{ val }}" {% if form.rank.value == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        {% if form.rank.errors %}<div class="error">{{ form.rank.errors }}</div>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label>{{ form.department.label }}</label>
+        <select name="department" style="width:100%;padding:10px 14px;border:1.5px solid #cbd5e1;border-radius:10px;font-size:14px;outline:none;background:#fff;">
+          <option value="">-- Хэлтэсээ сонгоно уу --</option>
+          {% for dept in form.department.field.queryset %}
+          <option value="{{ dept.pk }}" {% if form.department.value == dept.pk|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
+          {% endfor %}
+        </select>
+        {% if form.department.errors %}<div class="error">{{ form.department.errors }}</div>{% endif %}
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px;font-size:15px;padding:12px;">
+        Хадгалаад хичээл эхлэх →
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
