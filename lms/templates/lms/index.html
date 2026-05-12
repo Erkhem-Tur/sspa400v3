@@ -364,7 +364,7 @@ footer strong{color:var(--navy)}
       <button class="btn btn-ghost" onclick="prevFlashcard()">← Previous</button>
       <button class="btn btn-gold" onclick="flipFlashcard()">Flip</button>
       <button class="btn btn-ghost" onclick="nextFlashcard()">Next →</button>
-      <button class="btn btn-ghost" onclick="speakCurrentFlashcard()">🔊 Listen</button>
+      <button class="btn btn-ghost" onclick="speakCurrentFlashcard(this)">🔊 Listen</button>
     </div>
     <div class="flash-know">
       <button class="btn btn-ghost" onclick="markFlash(false)">Need practice</button>
@@ -391,8 +391,8 @@ footer strong{color:var(--navy)}
         <button class="daily-tab" onclick="switchDailyTab('fill', this)">Fill in the blank</button>
       </div>
       <div class="daily-audio-row">
-        <button class="btn btn-gold btn-sm" onclick="playDailyDialogue()">🔊 Play dialogue</button>
-        <button class="btn btn-ghost btn-sm" onclick="playDailyLine()">▶ Play selected line</button>
+        <button class="btn btn-gold btn-sm" onclick="playDailyDialogue(this)">🔊 Play dialogue</button>
+        <button class="btn btn-ghost btn-sm" onclick="playDailyLine(this)">▶ Play selected line</button>
         <button class="btn btn-ghost btn-sm" onclick="toggleDailyMn()" id="dailyMnBtn">Show Mongolian</button>
       </div>
       <div class="daily-view visible" id="dailyDialogView"><div id="dailyDialogContent"></div></div>
@@ -489,36 +489,83 @@ const blocks = [{"title": "Mission 1: Questions 1-10", "section": "PDF Vocabular
 let state = JSON.parse(localStorage.getItem('sspa400_v2') || '{"answers":{},"submitted":{}}');
 let chosenVoice = null;
 
-/* ── AUDIO ── */
-function setStatus(msg){document.getElementById('audioStatus').textContent = 'Audio: ' + msg;}
-function loadVoice(){
-  const v = window.speechSynthesis ? speechSynthesis.getVoices() : [];
-  chosenVoice = v.find(x=>x.name==='Google UK English Female')
-    || v.find(x=>x.lang==='en-GB' && /female|google|samantha|serena/i.test(x.name))
-    || v.find(x=>x.lang==='en-GB')
-    || v.find(x=>x.lang&&x.lang.startsWith('en'))
-    || v[0] || null;
-  if(chosenVoice) setStatus('ready — ' + chosenVoice.name);
-}
-if('speechSynthesis' in window){speechSynthesis.onvoiceschanged=loadVoice;setTimeout(loadVoice,300);setTimeout(loadVoice,900);}
-else setStatus('not supported');
+/* ── AUDIO ENGINE ── */
+let chosenVoice = null;
+let _activeUtt = null;
+let _keepAliveTimer = null;
+let _activeSpeakBtn = null;
 
-function enableAudio(){loadVoice();speak('Audio is ready. Please show me your ID.');}
-function stopSpeech(){if('speechSynthesis' in window)speechSynthesis.cancel();}
-function speak(text){
-  if(!('speechSynthesis' in window)){setStatus('not supported');return;}
-  stopSpeech();loadVoice();
-  const clean = String(text).replace(/_____/g,'blank').replace(/\([^)]*\)/g,'').slice(0,220);
-  const u = new SpeechSynthesisUtterance(clean);
-  if(chosenVoice){u.voice=chosenVoice;u.lang=chosenVoice.lang||'en-GB';}else{u.lang='en-GB';}
-  u.rate=.78;u.pitch=1;u.volume=1;
-  u.onstart=()=>setStatus('speaking…');
-  u.onend=()=>setStatus('ready');
-  u.onerror=()=>setStatus('blocked — press Enable audio again');
-  try{speechSynthesis.speak(u);setTimeout(()=>{if(speechSynthesis.paused)speechSynthesis.resume();},250);}
-  catch(e){setStatus('error — press Enable audio');}
+function setStatus(msg){const el=document.getElementById('audioStatus');if(el)el.textContent='Audio: '+msg;}
+
+function _pickVoice(){
+  const voices = speechSynthesis.getVoices();
+  if(!voices.length) return;
+  chosenVoice =
+    voices.find(v=>v.name==='Google US English') ||
+    voices.find(v=>v.name==='Google UK English Female') ||
+    voices.find(v=>/samantha|karen|victoria/i.test(v.name)) ||
+    voices.find(v=>v.lang==='en-US' && v.localService) ||
+    voices.find(v=>v.lang==='en-GB' && v.localService) ||
+    voices.find(v=>v.lang&&v.lang.startsWith('en-US')) ||
+    voices.find(v=>v.lang&&v.lang.startsWith('en-GB')) ||
+    voices.find(v=>v.lang&&v.lang.startsWith('en')) ||
+    voices[0] || null;
+  if(chosenVoice) setStatus('ready — '+chosenVoice.name);
 }
-function testVoice(){speak('Welcome to SSPA Operation English. The officer checks IDs every morning. The officer is checking the ID now. The officer checked the ID yesterday.');}
+if('speechSynthesis' in window){
+  speechSynthesis.onvoiceschanged=_pickVoice;
+  setTimeout(_pickVoice,100);setTimeout(_pickVoice,600);setTimeout(_pickVoice,1800);
+} else { setStatus('not supported'); }
+
+function _setBtnState(btn, playing){
+  if(!btn) return;
+  if(playing){ btn.dataset.orig=btn.textContent; btn.textContent='⏹ Stop'; btn.style.opacity='1'; }
+  else { btn.textContent=btn.dataset.orig||'🔊 Listen'; btn.style.opacity=''; }
+}
+
+function stopSpeech(){
+  clearInterval(_keepAliveTimer);
+  _keepAliveTimer=null;
+  if(_activeSpeakBtn){ _setBtnState(_activeSpeakBtn,false); _activeSpeakBtn=null; }
+  _activeUtt=null;
+  if('speechSynthesis' in window) speechSynthesis.cancel();
+}
+
+function enableAudio(){_pickVoice();speak('Audio enabled.');}
+
+function speak(text, btn){
+  if(!('speechSynthesis' in window)){setStatus('not supported');return;}
+  // If same button pressed while playing → stop
+  if(btn && btn===_activeSpeakBtn){ stopSpeech(); return; }
+  stopSpeech();
+  const clean = String(text||'')
+    .replace(/_____/g,'blank').replace(/\([^)]*\)/g,'')
+    .replace(/[^\w\s'.,!?;:-]/g,' ').replace(/\s+/g,' ').trim().slice(0,300);
+  if(!clean) return;
+  const u = new SpeechSynthesisUtterance(clean);
+  if(chosenVoice){u.voice=chosenVoice;u.lang=chosenVoice.lang||'en-US';}else{u.lang='en-US';}
+  u.rate=0.90; u.pitch=1.0; u.volume=1.0;
+  u.onstart=()=>{
+    setStatus('speaking…');
+    if(btn){_activeSpeakBtn=btn;_setBtnState(btn,true);}
+    // Chrome keepalive: prevents speech from silently stopping on long texts
+    _keepAliveTimer=setInterval(()=>{
+      if(!speechSynthesis.speaking){clearInterval(_keepAliveTimer);return;}
+      speechSynthesis.pause(); speechSynthesis.resume();
+    },12000);
+  };
+  u.onend=()=>{ setStatus('ready'); stopSpeech(); };
+  u.onerror=(e)=>{ if(e.error!=='interrupted') setStatus('blocked — press Enable audio'); stopSpeech(); };
+  _activeUtt=u;
+  try{
+    speechSynthesis.speak(u);
+    // iOS: must resume immediately after speak()
+    requestAnimationFrame(()=>{ if(speechSynthesis.paused) speechSynthesis.resume(); });
+  } catch(e){ setStatus('error — press Enable audio'); }
+}
+
+function testVoice(){speak('Welcome to SSPA Operation English. The guard checks identification cards every morning.');}
+function safeSpeakText(s,btn){speak(String(s||''),btn);}
 
 /* ── SAVE / LOAD ── */
 function save(){localStorage.setItem('sspa400_v2',JSON.stringify(state));updateProgress();}
@@ -534,7 +581,7 @@ function renderVocab(){
       <span class="vcard-en">${v.en}</span>
       <span class="vcard-mn">${v.mn}</span>
       <span class="vcard-cat">${v.cat}</span>
-      <button class="listen-btn mt-2" onclick="speak('${v.en.replace(/'/g,"\'")}')">🔊 Listen</button>
+      <button class="listen-btn mt-2" onclick="speak('${v.en.replace(/'/g,"\\'")}',this)">🔊 Listen</button>
     </div>`).join('');
 }
 function initVocabFilter(){
@@ -588,7 +635,7 @@ function renderQ(q, idx){
     </div>
     <div class="qsection-tag" style="color:${secColor}">${q.section}</div>
     <div class="qtext">${q.q}</div>
-    <button class="listen-btn" onclick="speak(questions[${idx}].q)" style="margin-bottom:8px">🔊 Listen to question</button>
+    <button class="listen-btn" onclick="speak(questions[${idx}].q,this)" style="margin-bottom:8px">🔊 Listen to question</button>
     <div class="opts">
       ${q.opts.map((o,oi)=>`<button class="opt" id="q-${idx}-o-${oi}" onclick="selectAnswer(${idx},${oi})">${String.fromCharCode(65+oi)}. ${o}</button>`).join('')}
     </div>
@@ -654,7 +701,7 @@ function paintResult(idx, chosen){
     <div style="margin:4px 0">${q.mn}</div>
     <span class="meaning-pill">${q.meaning}</span>
     <div style="margin-top:8px;font-size:13px"><strong>Why:</strong> ${q.why}</div>
-    <button class="listen-btn" style="margin-top:8px" onclick="speak(questions[${idx}].meaning || questions[${idx}].q)">🔊 Listen to answer</button>`;
+    <button class="listen-btn" style="margin-top:8px" onclick="speak(questions[${idx}].meaning||questions[${idx}].q,this)">🔊 Listen to answer</button>`;
 }
 
 function resetSet(bi){
@@ -915,8 +962,6 @@ let flashDeck=[], flashIndex=0, flashFlipped=false;
 let dailyCurrent=0, dailyShowMn=false, dailyTab='dialog', dailyQuizIndex=0, dailyQuizScore=0, dailyQuizAnswered=false, dailySelectedLine=0;
 
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
-function safeSpeakText(s){speak(String(s||''));}
-
 /* ── UPDATED GROUPED VOCABULARY ── */
 function renderVocab(){
   const grid = document.getElementById('vocabGrid');
@@ -934,7 +979,7 @@ function renderVocab(){
             <span class="vcard-mn">${escapeHtml(v.mn)}</span>
             <span class="vcard-cat">${escapeHtml(v.cat)}</span>
             <div class="vcard-actions">
-              <button class="listen-btn" onclick='safeSpeakText(${JSON.stringify(v.en)})'>🔊 Listen</button>
+              <button class="listen-btn" onclick='safeSpeakText(${JSON.stringify(v.en)},this)'>🔊 Listen</button>
             </div>
           </div>`).join('')}
       </div>
@@ -973,7 +1018,7 @@ function shuffleFlashcards(){
   for(let i=flashDeck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[flashDeck[i],flashDeck[j]]=[flashDeck[j],flashDeck[i]];}
   flashIndex=0; flashFlipped=false; renderFlashcard();
 }
-function speakCurrentFlashcard(){if(flashDeck[flashIndex]) speak(flashDeck[flashIndex].en);}
+function speakCurrentFlashcard(btn){if(flashDeck[flashIndex]) speak(flashDeck[flashIndex].en,btn);}
 function markFlash(known){
   const key='sspa_flash_known';
   const knownMap=JSON.parse(localStorage.getItem(key)||'{}');
@@ -1005,8 +1050,8 @@ function renderDailyDialog(){
   wrap.innerHTML=l.lines.map((line,i)=>`<div class="dialog-line" onclick="dailySelectedLine=${i};safeSpeakText(${JSON.stringify(line.en)})"><span class="speaker ${line.s.toLowerCase()}">${line.s}</span><div><div class="line-en">${escapeHtml(line.en)}</div><div class="line-mn">${escapeHtml(line.mn)}</div></div></div>`).join('');
 }
 function toggleDailyMn(){dailyShowMn=!dailyShowMn; renderDailyDialog();}
-function playDailyLine(){const l=everydayLessons[dailyCurrent]; if(l.lines[dailySelectedLine]) speak(l.lines[dailySelectedLine].en);}
-function playDailyDialogue(){const l=everydayLessons[dailyCurrent]; speak(l.lines.map(x=>x.s+'. '+x.en).join(' '));}
+function playDailyLine(btn){const l=everydayLessons[dailyCurrent]; if(l.lines[dailySelectedLine]) speak(l.lines[dailySelectedLine].en,btn);}
+function playDailyDialogue(btn){const l=everydayLessons[dailyCurrent]; speak(l.lines.map(x=>x.s+'. '+x.en).join(' '),btn);}
 function renderDailyQuiz(){
   const l=everydayLessons[dailyCurrent], q=l.quiz[dailyQuizIndex];
   document.getElementById('dailyQuizQ').textContent=q.q;
