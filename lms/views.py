@@ -1,13 +1,13 @@
 import json
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Avg, Sum, Count
 
 from .forms import RegisterForm, LoginForm
-from .models import Lesson, QuizResult, UserProgress
+from .models import Lesson, QuizResult, UserProgress, Department
 
 
 def register_view(request):
@@ -16,7 +16,10 @@ def register_view(request):
     form = RegisterForm(request.POST or None)
     if form.is_valid():
         user = form.save()
-        UserProgress.objects.create(user=user)
+        UserProgress.objects.create(
+            user=user,
+            department=form.cleaned_data['department']
+        )
         login(request, user)
         return redirect('dashboard')
     return render(request, 'lms/register.html', {'form': form})
@@ -51,7 +54,7 @@ def dashboard_view(request):
 
 @login_required
 def lesson_view(request, lesson_id):
-    lesson = Lesson.objects.get(pk=lesson_id)
+    lesson = get_object_or_404(Lesson, pk=lesson_id)
     return render(request, 'lms/index.html', {'lesson': lesson})
 
 
@@ -60,12 +63,10 @@ def lesson_view(request, lesson_id):
 def submit_quiz(request):
     try:
         data = json.loads(request.body)
-        lesson_id = data.get('lesson_id')
+        lesson = get_object_or_404(Lesson, pk=data.get('lesson_id'))
         batch_index = int(data.get('batch_index', 0))
         score = int(data.get('score', 0))
         total = int(data.get('total', 10))
-
-        lesson = Lesson.objects.get(pk=lesson_id)
 
         QuizResult.objects.create(
             user=request.user,
@@ -93,3 +94,32 @@ def profile_view(request):
         'progress': progress,
         'results': results,
     })
+
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def department_view(request):
+    departments = Department.objects.prefetch_related('members__user', 'members__user__quiz_results').all()
+    dept_data = []
+    for dept in departments:
+        members = dept.members.select_related('user').all()
+        member_list = []
+        for m in members:
+            results = QuizResult.objects.filter(user=m.user)
+            member_list.append({
+                'username': m.user.username,
+                'total_score': m.total_score,
+                'missions_completed': m.missions_completed,
+                'avg_pct': round(results.aggregate(
+                    avg=Avg('score') )['avg'] / 10 * 100) if results.exists() else 0,
+                'last': m.last_accessed,
+            })
+        member_list.sort(key=lambda x: x['total_score'], reverse=True)
+        dept_data.append({
+            'name': dept.name,
+            'count': len(member_list),
+            'members': member_list,
+            'total_score': sum(m['total_score'] for m in member_list),
+            'avg_score': round(sum(m['total_score'] for m in member_list) / len(member_list)) if member_list else 0,
+        })
+    return render(request, 'lms/department.html', {'dept_data': dept_data})

@@ -1,9 +1,15 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
+from .models import Department
 
 
 class RegisterForm(forms.ModelForm):
+    department = forms.ModelChoiceField(
+        queryset=Department.objects.all(),
+        label="Хэлтэс / Тасаг",
+        empty_label="-- Хэлтэсээ сонгоно уу --"
+    )
     password = forms.CharField(widget=forms.PasswordInput, label="Нууц үг")
     password2 = forms.CharField(widget=forms.PasswordInput, label="Нууц үг давтах")
 

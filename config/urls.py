@@ -11,4 +11,5 @@ urlpatterns = [
     path('lesson/<int:lesson_id>/', views.lesson_view, name='lesson'),
     path('api/quiz/submit/', views.submit_quiz, name='submit_quiz'),
     path('profile/', views.profile_view, name='profile'),
+    path('departments/', views.department_view, name='departments'),
 ]

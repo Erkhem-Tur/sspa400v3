@@ -2,6 +2,17 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+class Department(models.Model):
+    name = models.CharField(max_length=200, unique=True)
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.name
+
+
 class Lesson(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
@@ -35,9 +46,11 @@ class QuizResult(models.Model):
 
 class UserProgress(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='progress')
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name='members')
     total_score = models.IntegerField(default=0)
     missions_completed = models.IntegerField(default=0)
     last_accessed = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user.username} – score {self.total_score}"
+        dept = self.department.name if self.department else 'Хэлтэсгүй'
+        return f"{self.user.username} ({dept}) – {self.total_score} оноо"
