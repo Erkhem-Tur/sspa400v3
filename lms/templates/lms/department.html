@@ -2,9 +2,19 @@
 {% block title %}Суралцагчийн явц – ТТХА{% endblock %}
 {% block content %}
 
-<div class="d-flex align-items-center gap-2 mb-4">
-  <i class="bi bi-bar-chart-line fs-4" style="color:#1b3a6b;"></i>
-  <h4 class="fw-bold mb-0" style="color:#1b3a6b;">Суралцагчийн явц</h4>
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+  <div class="d-flex align-items-center gap-2">
+    <i class="bi bi-bar-chart-line fs-4" style="color:#1b3a6b;"></i>
+    <h4 class="fw-bold mb-0" style="color:#1b3a6b;">Суралцагчийн явц</h4>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>Самбар руу
+    </a>
+    <a href="{% url 'admin:auth_user_add' %}" class="btn btn-sm btn-primary">
+      <i class="bi bi-person-plus me-1"></i>Суралцагч нэмэх
+    </a>
+  </div>
 </div>
 
 <!-- Summary stat cards -->
@@ -176,8 +186,18 @@
   </div>
   {% else %}
   <div class="card-body text-center py-5">
-    <i class="bi bi-inbox fs-1 text-muted"></i>
-    <p class="text-muted mt-2 mb-0">Суралцагч олдсонгүй.</p>
+    <i class="bi bi-people fs-1 d-block mb-3 opacity-25" style="color:#1b3a6b;"></i>
+    {% if search or dept_filter %}
+    <p class="fw-semibold text-muted mb-1">Хайлтын үр дүн олдсонгүй.</p>
+    <p class="text-muted small mb-3">Өөр нэр эсвэл хэлтэсээр дахин хайна уу.</p>
+    <a href="{% url 'departments' %}" class="btn btn-sm btn-outline-secondary">Шүүлтүүр цэвэрлэх</a>
+    {% else %}
+    <p class="fw-semibold text-muted mb-1">Суралцагч бүртгэгдээгүй байна.</p>
+    <p class="text-muted small mb-3">Хэрэглэгчид <strong>/register/</strong> хаягаар бүртгүүлсний дараа энд харагдана.</p>
+    <a href="{% url 'admin:auth_user_add' %}" class="btn btn-sm btn-primary">
+      <i class="bi bi-person-plus me-1"></i>Суралцагч нэмэх
+    </a>
+    {% endif %}
   </div>
   {% endif %}
 </div>

@@ -56,6 +56,18 @@
   <div class="text-center" style="font-size:13px;color:#64748b;">
     Бүртгэл байхгүй юу? <a href="{% url 'register' %}" style="color:#1b3a6b;font-weight:700;">Бүртгүүлэх</a>
   </div>
+
+  <div class="text-center mt-4 pt-3" style="border-top:1px solid #f1f5f9;">
+    <button type="button" onclick="fillAdmin()" style="background:none;border:1px solid #e2e8f0;color:#94a3b8;font-size:11px;cursor:pointer;padding:5px 14px;border-radius:6px;transition:all .15s;" onmouseover="this.style.borderColor='#1b3a6b';this.style.color='#1b3a6b';" onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#94a3b8';">
+      <i class="bi bi-shield-lock me-1"></i>Удирдлагын нэвтрэх
+    </button>
+  </div>
 </div>
+<script>
+function fillAdmin(){
+  document.querySelector('[name=username]').value='admin';
+  document.querySelector('[name=password]').focus();
+}
+</script>
 </body>
 </html>

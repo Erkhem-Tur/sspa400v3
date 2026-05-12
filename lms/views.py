@@ -57,11 +57,38 @@ def dashboard_view(request):
         return redirect('setup_profile')
     lessons = Lesson.objects.all()
     results = QuizResult.objects.filter(user=request.user).order_by('-taken_at')[:20]
-    return render(request, 'lms/dashboard.html', {
-        'lessons': lessons,
-        'progress': progress,
-        'results': results,
-    })
+    ctx = {'lessons': lessons, 'progress': progress, 'results': results}
+
+    if request.user.is_staff:
+        total_students = UserProgress.objects.filter(user__is_staff=False).count()
+        total_missions = QuizResult.objects.count()
+        raw_avg = QuizResult.objects.aggregate(avg=Avg('score'))['avg']
+        overall_avg = round((raw_avg / 10 * 100)) if raw_avg else 0
+        total_hours = round(
+            (UserProgress.objects.filter(user__is_staff=False)
+             .aggregate(s=Sum('study_minutes'))['s'] or 0) / 60, 1
+        )
+        recent = (UserProgress.objects
+                  .filter(user__is_staff=False)
+                  .select_related('user', 'department')
+                  .order_by('-last_accessed')[:8])
+        dept_summary = []
+        for dept in Department.objects.all():
+            members = dept.members.filter(user__is_staff=False)
+            dept_summary.append({
+                'name': dept.name,
+                'count': members.count(),
+                'avg': round(members.aggregate(a=Avg('total_score'))['a'] or 0),
+            })
+        ctx['admin'] = {
+            'total_students': total_students,
+            'total_missions': total_missions,
+            'overall_avg': overall_avg,
+            'total_hours': total_hours,
+            'recent': recent,
+            'dept_summary': dept_summary,
+        }
+    return render(request, 'lms/dashboard.html', ctx)
 
 
 @login_required
