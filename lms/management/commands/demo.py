@@ -7,18 +7,18 @@ from datetime import timedelta
 from lms.models import UserProgress, Department, Lesson, QuizResult
 
 STUDENTS = [
-    ("Б.Мөнхбаяр",  "munkh001",  "Ахмад | Captain",            1),
-    ("Д.Энхбаяр",   "enkh002",   "Хошууч | Major",             1),
-    ("Г.Батзориг",  "batzor003", "Дэслэгч | Lieutenant",       1),
-    ("Н.Солонго",   "solon004",  "Ахлагч | Sergeant",          1),
-    ("Т.Батбаяр",   "batbay005", "Дэд ахлагч | Corporal",      1),
-    ("О.Номин",     "nomin006",  "Энгийн | Private",           1),
+    ("Б.Мөнхбаяр",  "munkh001",  "Ахмад | Captain",                   1),
+    ("Д.Энхбаяр",   "enkh002",   "Хошууч | Major",                    1),
+    ("Г.Батзориг",  "batzor003", "Дэслэгч | Junior Lieutenant",       1),
+    ("Н.Солонго",   "solon004",  "Ахлагч | Sergeant",                 1),
+    ("Т.Батбаяр",   "batbay005", "Дэд ахлагч | Junior Sergeant",      1),
+    ("О.Номин",     "nomin006",  "Энгийн | Civilian",                 1),
     ("Ц.Болдбаатар","bold007",   "Ахлах дэслэгч | Senior Lieutenant", 2),
-    ("Э.Мөнхцэцэг", "munkh008",  "Ахмад | Captain",            2),
+    ("Э.Мөнхцэцэг", "munkh008",  "Ахмад | Captain",                   2),
     ("Б.Ганболд",   "ganb009",   "Дэд хурандаа | Lieutenant Colonel", 2),
-    ("Х.Түвшинбаяр","tuvshin010","Хошууч | Major",             2),
-    ("С.Анар",      "anar011",   "Ахлах ахлагч | Staff Sergeant", 2),
-    ("Р.Баатарсүх", "baatar012", "Дэслэгч | Lieutenant",       2),
+    ("Х.Түвшинбаяр","tuvshin010","Хошууч | Major",                    2),
+    ("С.Анар",      "anar011",   "Ахлах ахлагч | Senior Sergeant",    2),
+    ("Р.Баатарсүх", "baatar012", "Дэслэгч | Junior Lieutenant",       2),
 ]
 
 class Command(BaseCommand):

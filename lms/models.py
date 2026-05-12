@@ -46,16 +46,16 @@ class QuizResult(models.Model):
 
 RANK_CHOICES = [
     ('', '-- Цолоо сонгоно уу --'),
-    ('Энгийн | Private',           'Энгийн | Private'),
-    ('Дэд ахлагч | Corporal',      'Дэд ахлагч | Corporal'),
-    ('Ахлагч | Sergeant',          'Ахлагч | Sergeant'),
-    ('Ахлах ахлагч | Staff Sergeant', 'Ахлах ахлагч | Staff Sergeant'),
-    ('Дэслэгч | Lieutenant',       'Дэслэгч | Lieutenant'),
-    ('Ахлах дэслэгч | Senior Lieutenant', 'Ахлах дэслэгч | Senior Lieutenant'),
-    ('Ахмад | Captain',            'Ахмад | Captain'),
-    ('Хошууч | Major',             'Хошууч | Major'),
-    ('Дэд хурандаа | Lieutenant Colonel', 'Дэд хурандаа | Lieutenant Colonel'),
-    ('Хурандаа | Colonel',         'Хурандаа | Colonel'),
+    ('Энгийн | Civilian',                    'Энгийн | Civilian'),
+    ('Дэд ахлагч | Junior Sergeant',         'Дэд ахлагч | Junior Sergeant'),
+    ('Ахлагч | Sergeant',                    'Ахлагч | Sergeant'),
+    ('Ахлах ахлагч | Senior Sergeant',       'Ахлах ахлагч | Senior Sergeant'),
+    ('Дэслэгч | Junior Lieutenant',          'Дэслэгч | Junior Lieutenant'),
+    ('Ахлах дэслэгч | Senior Lieutenant',    'Ахлах дэслэгч | Senior Lieutenant'),
+    ('Ахмад | Captain',                      'Ахмад | Captain'),
+    ('Хошууч | Major',                       'Хошууч | Major'),
+    ('Дэд хурандаа | Lieutenant Colonel',    'Дэд хурандаа | Lieutenant Colonel'),
+    ('Хурандаа | Colonel',                   'Хурандаа | Colonel'),
     ('Бригадын генерал | Brigadier General', 'Бригадын генерал | Brigadier General'),
 ]
 
