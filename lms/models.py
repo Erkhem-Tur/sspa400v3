@@ -68,7 +68,16 @@ class UserProgress(models.Model):
     profile_complete = models.BooleanField(default=False)
     total_score = models.IntegerField(default=0)
     missions_completed = models.IntegerField(default=0)
+    study_minutes = models.IntegerField(default=0)
     last_accessed = models.DateTimeField(auto_now=True)
+
+    def study_days(self):
+        from django.utils import timezone
+        delta = timezone.now() - self.user.date_joined
+        return delta.days
+
+    def study_hours(self):
+        return round(self.study_minutes / 60, 1)
 
     def __str__(self):
         dept = self.department.name if self.department else 'Хэлтэсгүй'

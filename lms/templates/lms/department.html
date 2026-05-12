@@ -2,7 +2,6 @@
 {% block title %}Суралцагчийн явц – ТТХА{% endblock %}
 {% block content %}
 
-<!-- Page title -->
 <div class="d-flex align-items-center gap-2 mb-4">
   <i class="bi bi-bar-chart-line fs-4" style="color:#1b3a6b;"></i>
   <h4 class="fw-bold mb-0" style="color:#1b3a6b;">Суралцагчийн явц</h4>
@@ -10,60 +9,60 @@
 
 <!-- Summary stat cards -->
 <div class="row g-3 mb-4">
-  <div class="col-sm-6 col-lg-3">
+  <div class="col-6 col-lg-3">
     <div class="card h-100" style="background:linear-gradient(135deg,#1b3a6b,#0f2744);color:#fff;">
-      <div class="card-body d-flex align-items-center justify-content-between">
+      <div class="card-body d-flex align-items-center justify-content-between p-3">
         <div>
-          <div class="fs-1 fw-black">{{ total_students }}</div>
-          <div class="small opacity-75">Нийт суралцагч</div>
+          <div class="fs-1 fw-black lh-1">{{ total_students }}</div>
+          <div class="small opacity-75 mt-1">Нийт суралцагч</div>
         </div>
         <i class="bi bi-people fs-1 opacity-25"></i>
       </div>
     </div>
   </div>
-  <div class="col-sm-6 col-lg-3">
+  <div class="col-6 col-lg-3">
     <div class="card h-100" style="background:linear-gradient(135deg,#c9a227,#a07d10);color:#fff;">
-      <div class="card-body d-flex align-items-center justify-content-between">
+      <div class="card-body d-flex align-items-center justify-content-between p-3">
         <div>
-          <div class="fs-1 fw-black">{{ total_missions }}</div>
-          <div class="small opacity-75">Нийт Mission</div>
+          <div class="fs-1 fw-black lh-1">{{ total_missions }}</div>
+          <div class="small opacity-75 mt-1">Нийт Mission</div>
         </div>
         <i class="bi bi-check2-all fs-1 opacity-25"></i>
       </div>
     </div>
   </div>
-  <div class="col-sm-6 col-lg-3">
+  <div class="col-6 col-lg-3">
     <div class="card h-100" style="background:linear-gradient(135deg,#0e7490,#0c5f73);color:#fff;">
-      <div class="card-body d-flex align-items-center justify-content-between">
+      <div class="card-body d-flex align-items-center justify-content-between p-3">
         <div>
-          <div class="fs-1 fw-black">{{ overall_avg_pct }}%</div>
-          <div class="small opacity-75">Нийт дундаж</div>
+          <div class="fs-1 fw-black lh-1">{{ overall_avg_pct }}%</div>
+          <div class="small opacity-75 mt-1">Нийт дундаж</div>
         </div>
         <i class="bi bi-graph-up fs-1 opacity-25"></i>
       </div>
     </div>
   </div>
-  <div class="col-sm-6 col-lg-3">
-    <div class="card h-100" style="background:linear-gradient(135deg,#166534,#14532d);color:#fff;">
-      <div class="card-body d-flex align-items-center justify-content-between">
+  <div class="col-6 col-lg-3">
+    <div class="card h-100" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;">
+      <div class="card-body d-flex align-items-center justify-content-between p-3">
         <div>
-          <div class="fs-1 fw-black">{{ dept_data|length }}</div>
-          <div class="small opacity-75">Хэлтэс</div>
+          <div class="fs-1 fw-black lh-1">{{ total_study_hours }}</div>
+          <div class="small opacity-75 mt-1">Нийт цаг (цаг)</div>
         </div>
-        <i class="bi bi-building fs-1 opacity-25"></i>
+        <i class="bi bi-clock-history fs-1 opacity-25"></i>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Department summary row -->
+<!-- Department summary -->
 <div class="row g-3 mb-4">
   {% for d in dept_data %}
   <div class="col-md-6">
     <div class="card h-100">
-      <div class="card-body d-flex align-items-center gap-3">
+      <div class="card-body d-flex align-items-center gap-3 p-3">
         <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-             style="width:48px;height:48px;background:#e8f4fd;">
+             style="width:44px;height:44px;background:#e8f4fd;">
           <i class="bi bi-shield-fill fs-5" style="color:#1b3a6b;"></i>
         </div>
         <div class="flex-grow-1">
@@ -77,7 +76,7 @@
   {% endfor %}
 </div>
 
-<!-- Filter bar -->
+<!-- Filter -->
 <div class="card mb-3">
   <div class="card-body py-2">
     <form method="get" class="d-flex flex-wrap gap-2 align-items-center">
@@ -101,64 +100,74 @@
 
 <!-- Student table -->
 <div class="card">
-  <div class="card-header d-flex align-items-center justify-content-between">
+  <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
     <div class="d-flex align-items-center gap-2">
       <i class="bi bi-table" style="color:#1b3a6b;"></i>
-      <span>Суралцагчдын жагсаалт</span>
+      <span>Суралцагчдын дэлгэрэнгүй</span>
     </div>
-    <span class="badge rounded-pill" style="background:#e8f4fd;color:#1b3a6b;">{{ student_list|length }} суралцагч</span>
+    <span class="badge rounded-pill" style="background:#e8f4fd;color:#1b3a6b;font-size:12px;">{{ student_list|length }} суралцагч</span>
   </div>
   {% if student_list %}
   <div class="table-responsive">
-    <table class="table table-hover mb-0 align-middle">
+    <table class="table table-hover mb-0 align-middle" style="font-size:13px;">
       <thead class="table-light">
         <tr>
-          <th style="width:40px;">#</th>
+          <th>#</th>
           <th>Суралцагч</th>
           <th>Цол</th>
           <th>Хэлтэс</th>
-          <th class="text-center">Нийт оноо</th>
+          <th class="text-center">Оноо</th>
           <th class="text-center">Mission</th>
           <th class="text-center">Дундаж</th>
+          <th class="text-center">Суралцсан</th>
+          <th class="text-center">Цаг</th>
+          <th class="text-end">Эхэлсэн огноо</th>
           <th class="text-end">Сүүлд нэвтэрсэн</th>
         </tr>
       </thead>
       <tbody>
         {% for s in student_list %}
         <tr>
-          <td class="text-muted fw-bold small">{{ forloop.counter }}</td>
+          <td class="text-muted fw-bold">{{ forloop.counter }}</td>
           <td>
             <div class="d-flex align-items-center gap-2">
               <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                   style="width:36px;height:36px;background:{% cycle '#1b3a6b' '#c9a227' '#0e7490' '#166534' %};color:#fff;font-size:14px;font-weight:800;">
+                   style="width:34px;height:34px;background:#1b3a6b;color:#fff;font-size:13px;font-weight:800;">
                 {{ s.full_name|first|upper }}
               </div>
               <div>
-                <div class="fw-semibold" style="font-size:14px;">{{ s.full_name }}</div>
+                <div class="fw-semibold">{{ s.full_name }}</div>
                 <div class="text-muted" style="font-size:11px;">@{{ s.username }}</div>
               </div>
             </div>
           </td>
           <td>
             {% if s.rank %}
-            <span class="badge rounded-pill" style="background:#e8f4fd;color:#1b3a6b;font-size:11px;white-space:normal;max-width:160px;">{{ s.rank }}</span>
-            {% else %}<span class="text-muted small">—</span>{% endif %}
+            <span class="badge rounded-pill" style="background:#e8f4fd;color:#1b3a6b;font-size:10px;white-space:normal;">{{ s.rank }}</span>
+            {% else %}<span class="text-muted">—</span>{% endif %}
           </td>
           <td><span class="text-muted small">{{ s.department }}</span></td>
           <td class="text-center">
-            <span class="badge fs-6 fw-black" style="background:#1b3a6b;min-width:48px;">{{ s.total_score }}</span>
+            <span class="badge fw-black" style="background:#1b3a6b;font-size:13px;min-width:40px;">{{ s.total_score }}</span>
           </td>
           <td class="text-center fw-semibold">{{ s.missions_completed }}</td>
           <td class="text-center">
             {% if s.avg_pct > 0 %}
             <div class="d-flex align-items-center gap-1 justify-content-center">
-              <div style="width:60px;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;">
-                <div style="width:{{ s.avg_pct }}%;height:100%;background:{% if s.avg_pct >= 80 %}#22c55e{% elif s.avg_pct >= 50 %}#f59e0b{% else %}#ef4444{% endif %};border-radius:3px;"></div>
+              <div style="width:50px;height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;">
+                <div style="width:{{ s.avg_pct }}%;height:100%;background:{% if s.avg_pct >= 80 %}#22c55e{% elif s.avg_pct >= 50 %}#f59e0b{% else %}#ef4444{% endif %};"></div>
               </div>
-              <span class="small fw-bold {% if s.avg_pct >= 80 %}text-success{% elif s.avg_pct >= 50 %}text-warning{% else %}text-danger{% endif %}">{{ s.avg_pct }}%</span>
+              <span class="fw-bold {% if s.avg_pct >= 80 %}text-success{% elif s.avg_pct >= 50 %}text-warning{% else %}text-danger{% endif %}">{{ s.avg_pct }}%</span>
             </div>
-            {% else %}<span class="text-muted small">—</span>{% endif %}
+            {% else %}<span class="text-muted">—</span>{% endif %}
           </td>
+          <td class="text-center">
+            <span class="badge rounded-pill bg-light text-dark border">{{ s.study_days }} өдөр</span>
+          </td>
+          <td class="text-center">
+            <span class="badge rounded-pill" style="background:#f3e8ff;color:#7c3aed;">{{ s.study_hours }}ц</span>
+          </td>
+          <td class="text-end text-muted small">{{ s.joined|date:"Y/m/d" }}</td>
           <td class="text-end text-muted small">{{ s.last|date:"Y/m/d H:i" }}</td>
         </tr>
         {% endfor %}

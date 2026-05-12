@@ -4,7 +4,8 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.db.models import Avg
+from django.db.models import Avg, Sum, Count
+from django.utils import timezone
 
 from .forms import RegisterForm, LoginForm, ProfileForm
 from .models import Lesson, QuizResult, UserProgress, Department
@@ -98,6 +99,21 @@ def submit_quiz(request):
 
 
 @login_required
+@require_POST
+def track_study_time(request):
+    try:
+        data = json.loads(request.body)
+        minutes = int(data.get('minutes', 0))
+        if 0 < minutes <= 120:
+            progress, _ = UserProgress.objects.get_or_create(user=request.user)
+            progress.study_minutes += minutes
+            progress.save()
+        return JsonResponse({'status': 'ok'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+@login_required
 def profile_view(request):
     progress, _ = UserProgress.objects.get_or_create(user=request.user)
     form = ProfileForm(request.POST or None, instance=progress)
@@ -137,6 +153,7 @@ def department_view(request):
     for p in all_progress:
         results = QuizResult.objects.filter(user=p.user)
         avg = results.aggregate(avg=Avg('score'))['avg']
+        days = (timezone.now() - p.user.date_joined).days
         student_list.append({
             'full_name': p.full_name or p.user.username,
             'username': p.user.username,
@@ -146,6 +163,9 @@ def department_view(request):
             'missions_completed': p.missions_completed,
             'avg_pct': round(avg / 10 * 100) if avg else 0,
             'last': p.last_accessed,
+            'joined': p.user.date_joined,
+            'study_days': days,
+            'study_hours': round(p.study_minutes / 60, 1),
             'profile_complete': p.profile_complete,
         })
 
@@ -153,6 +173,7 @@ def department_view(request):
     total_missions = QuizResult.objects.count()
     overall_avg = QuizResult.objects.aggregate(avg=Avg('score'))['avg']
     overall_avg_pct = round(overall_avg / 10 * 100) if overall_avg else 0
+    total_study_hours = round((UserProgress.objects.filter(user__is_staff=False).aggregate(s=Sum('study_minutes'))['s'] or 0) / 60, 1)
 
     dept_data = []
     for dept in departments:
@@ -173,4 +194,5 @@ def department_view(request):
         'total_students': total_students,
         'total_missions': total_missions,
         'overall_avg_pct': overall_avg_pct,
+        'total_study_hours': total_study_hours,
     })
