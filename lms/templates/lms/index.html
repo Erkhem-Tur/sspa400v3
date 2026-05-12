@@ -1102,12 +1102,18 @@ initVocabFilter();renderVocab();initFlashcards();buildDailyLessons();renderDaily
     });
   };
 
-  // Study time tracking — sends elapsed minutes every 5 min & on page leave
+  // Study time tracking — fetch with keepalive so it survives page close
   let _studyStart = Date.now();
+  function _getCsrf(){ return document.cookie.split(';').map(c=>c.trim()).find(c=>c.startsWith('csrftoken='))?.split('=')[1]||document.querySelector('meta[name="csrf-token"]')?.content||''; }
   function _sendStudyTime() {
     const mins = Math.round((Date.now() - _studyStart) / 60000);
     if (mins < 1) return;
-    navigator.sendBeacon('/api/study/time/', JSON.stringify({ minutes: mins }));
+    fetch('/api/study/time/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': _getCsrf() },
+      body: JSON.stringify({ minutes: mins }),
+      keepalive: true
+    }).catch(() => {});
     _studyStart = Date.now();
   }
   setInterval(_sendStudyTime, 5 * 60 * 1000);
