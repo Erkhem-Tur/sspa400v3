@@ -117,28 +117,60 @@ def profile_view(request):
 @login_required
 @user_passes_test(lambda u: u.is_staff)
 def department_view(request):
+    dept_filter = request.GET.get('dept', '')
+    search = request.GET.get('q', '').strip()
+
     departments = Department.objects.all()
+
+    all_progress = UserProgress.objects.select_related('user', 'department').filter(
+        user__is_staff=False
+    ).order_by('-total_score')
+
+    if dept_filter:
+        all_progress = all_progress.filter(department_id=dept_filter)
+    if search:
+        all_progress = all_progress.filter(
+            full_name__icontains=search
+        ) | all_progress.filter(user__username__icontains=search)
+
+    student_list = []
+    for p in all_progress:
+        results = QuizResult.objects.filter(user=p.user)
+        avg = results.aggregate(avg=Avg('score'))['avg']
+        student_list.append({
+            'full_name': p.full_name or p.user.username,
+            'username': p.user.username,
+            'rank': p.rank,
+            'department': p.department.name if p.department else '—',
+            'total_score': p.total_score,
+            'missions_completed': p.missions_completed,
+            'avg_pct': round(avg / 10 * 100) if avg else 0,
+            'last': p.last_accessed,
+            'profile_complete': p.profile_complete,
+        })
+
+    total_students = UserProgress.objects.filter(user__is_staff=False).count()
+    total_missions = QuizResult.objects.count()
+    overall_avg = QuizResult.objects.aggregate(avg=Avg('score'))['avg']
+    overall_avg_pct = round(overall_avg / 10 * 100) if overall_avg else 0
+
     dept_data = []
     for dept in departments:
-        members = dept.members.select_related('user').all()
-        member_list = []
-        for m in members:
-            results = QuizResult.objects.filter(user=m.user)
-            avg = results.aggregate(avg=Avg('score'))['avg']
-            member_list.append({
-                'full_name': m.full_name or m.user.username,
-                'username': m.user.username,
-                'rank': m.rank,
-                'total_score': m.total_score,
-                'missions_completed': m.missions_completed,
-                'avg_pct': round(avg / 10 * 100) if avg else 0,
-                'last': m.last_accessed,
-            })
-        member_list.sort(key=lambda x: x['total_score'], reverse=True)
+        members = dept.members.filter(user__is_staff=False)
         dept_data.append({
+            'id': dept.id,
             'name': dept.name,
-            'count': len(member_list),
-            'members': member_list,
-            'avg_score': round(sum(m['total_score'] for m in member_list) / len(member_list)) if member_list else 0,
+            'count': members.count(),
+            'avg_score': round(members.aggregate(avg=Avg('total_score'))['avg'] or 0),
         })
-    return render(request, 'lms/department.html', {'dept_data': dept_data})
+
+    return render(request, 'lms/department.html', {
+        'student_list': student_list,
+        'departments': departments,
+        'dept_data': dept_data,
+        'dept_filter': dept_filter,
+        'search': search,
+        'total_students': total_students,
+        'total_missions': total_missions,
+        'overall_avg_pct': overall_avg_pct,
+    })
