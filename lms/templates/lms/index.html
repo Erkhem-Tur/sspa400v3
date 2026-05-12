@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="csrf-token" content="{{ csrf_token }}">
+<meta name="lesson-id" content="{{ lesson.id }}">
 <title>SSPA Operation English — 400 Questions + Listening</title>
 
 <!-- Facebook / Open Graph Thumbnail -->
@@ -239,6 +241,15 @@ footer strong{color:var(--navy)}
 </style>
 </head>
 <body>
+
+<div style="background:#1e3a5f;color:#fff;padding:0 20px;height:48px;display:flex;align-items:center;justify-content:space-between;font-family:system-ui,sans-serif;">
+  <span style="font-weight:800;font-size:15px;">🎖 SSPA 400 LMS</span>
+  <div style="display:flex;gap:16px;align-items:center;font-size:13px;">
+    <a href="/" style="color:rgba(255,255,255,.85);text-decoration:none;">Хичээл</a>
+    <a href="/profile/" style="color:rgba(255,255,255,.85);text-decoration:none;">Профайл</a>
+    <a href="/logout/" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:4px 12px;border-radius:7px;text-decoration:none;">Гарах</a>
+  </div>
+</div>
 
 <header>
   <div class="header-inner">
@@ -1019,6 +1030,26 @@ function resetDailyFill(){const l=everydayLessons[dailyCurrent]; l.fill.forEach(
 function showDailyFillAnswers(){const l=everydayLessons[dailyCurrent]; l.fill.forEach((item,i)=>{const inp=document.getElementById('daily-fill-'+i); inp.value=item.blank; inp.classList.remove('wrong'); inp.classList.add('correct');});}
 
 initVocabFilter();renderVocab();initFlashcards();buildDailyLessons();renderDailyDialog();renderSets();
+
+// Django LMS — quiz result submission hook
+(function(){
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+  const lessonId  = document.querySelector('meta[name="lesson-id"]').content;
+
+  const _origSubmitSet = submitSet;
+  submitSet = function(bi){
+    _origSubmitSet(bi);
+    let score = 0;
+    for(let idx = bi*10; idx < bi*10+10; idx++){
+      if(state.answers[idx] === questions[idx].ans) score++;
+    }
+    fetch('/api/quiz/submit/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+      body: JSON.stringify({ lesson_id: lessonId, batch_index: bi, score: score, total: 10 })
+    });
+  };
+})();
 </script>
 </body>
 </html>
