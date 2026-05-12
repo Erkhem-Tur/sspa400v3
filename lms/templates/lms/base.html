@@ -1,18 +1,27 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="mn">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}SSPA 400 LMS{% endblock %}</title>
+  <title>{% block title %}ТТХА Англи хэлний сургалт{% endblock %}</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, sans-serif; background: #f0f4f8; color: #1e293b; min-height: 100vh; }
     nav {
-      background: #1e3a5f; color: #fff; padding: 0 24px;
-      display: flex; align-items: center; justify-content: space-between; height: 56px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.2);
+      background: linear-gradient(135deg, #0f2744 0%, #1e3a5f 100%);
+      color: #fff; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between; height: 64px;
+      box-shadow: 0 3px 12px rgba(0,0,0,.3);
     }
-    nav .brand { font-weight: 800; font-size: 18px; letter-spacing: .5px; }
+    nav .brand {
+      display: flex; align-items: center; gap: 12px;
+      font-weight: 800; font-size: 16px; letter-spacing: .3px; text-decoration: none; color: #fff;
+    }
+    nav .brand img { width: 42px; height: 42px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,.3)); }
+    nav .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+    nav .brand-text .title { font-size: 14px; font-weight: 800; }
+    nav .brand-text .subtitle { font-size: 11px; opacity: .75; font-weight: 500; }
     nav .links { display: flex; gap: 20px; align-items: center; }
     nav a { color: rgba(255,255,255,.85); text-decoration: none; font-size: 14px; }
     nav a:hover { color: #fff; }
@@ -22,7 +31,7 @@
       cursor: pointer; text-decoration: none;
     }
     nav .btn-logout:hover { background: rgba(255,255,255,.25); }
-    .container { max-width: 900px; margin: 32px auto; padding: 0 16px; }
+    .container { max-width: 960px; margin: 32px auto; padding: 0 16px; }
     .card {
       background: #fff; border-radius: 16px; padding: 28px 32px;
       box-shadow: 0 2px 12px rgba(0,0,0,.07); margin-bottom: 24px;
@@ -40,11 +49,11 @@
     .btn-outline { background: transparent; border: 2px solid #1e3a5f; color: #1e3a5f; }
     .form-group { margin-bottom: 16px; }
     label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #475569; }
-    input[type=text], input[type=password], input[type=email] {
+    input[type=text], input[type=password], input[type=email], select {
       width: 100%; padding: 10px 14px; border: 1.5px solid #cbd5e1;
-      border-radius: 10px; font-size: 14px; outline: none; transition: border-color .15s;
+      border-radius: 10px; font-size: 14px; outline: none; transition: border-color .15s; background: #fff;
     }
-    input:focus { border-color: #1e3a5f; }
+    input:focus, select:focus { border-color: #1e3a5f; }
     .error { color: #dc2626; font-size: 13px; margin-top: 4px; }
     .alert { padding: 12px 16px; border-radius: 10px; font-size: 14px; margin-bottom: 16px; }
     .alert-error { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
@@ -53,7 +62,13 @@
 </head>
 <body>
 <nav>
-  <span class="brand">🎖 SSPA 400 LMS</span>
+  <a href="{% url 'dashboard' %}" class="brand">
+    <img src="{% static 'lms/logo.png' %}" alt="ТТХА лого">
+    <div class="brand-text">
+      <span class="title">Төрийн Тусгай Хамгаалалт</span>
+      <span class="subtitle">Англи хэлний сургалтын систем</span>
+    </div>
+  </a>
   {% if user.is_authenticated %}
   <div class="links">
     <a href="{% url 'dashboard' %}">Хичээл</a>

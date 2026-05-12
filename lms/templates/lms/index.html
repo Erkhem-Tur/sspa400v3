@@ -242,8 +242,15 @@ footer strong{color:var(--navy)}
 </head>
 <body>
 
-<div style="background:#1e3a5f;color:#fff;padding:0 20px;height:48px;display:flex;align-items:center;justify-content:space-between;font-family:system-ui,sans-serif;">
-  <span style="font-weight:800;font-size:15px;">🎖 SSPA 400 LMS</span>
+{% load static %}
+<div style="background:linear-gradient(135deg,#0f2744 0%,#1e3a5f 100%);color:#fff;padding:0 20px;height:64px;display:flex;align-items:center;justify-content:space-between;font-family:system-ui,sans-serif;box-shadow:0 3px 12px rgba(0,0,0,.3);">
+  <a href="/" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff;">
+    <img src="{% static 'lms/logo.png' %}" alt="ТТХА" style="width:42px;height:42px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));">
+    <div style="line-height:1.2;">
+      <div style="font-size:14px;font-weight:800;">Төрийн Тусгай Хамгаалалт</div>
+      <div style="font-size:11px;opacity:.75;">Англи хэлний сургалтын систем</div>
+    </div>
+  </a>
   <div style="display:flex;gap:16px;align-items:center;font-size:13px;">
     <a href="/" style="color:rgba(255,255,255,.85);text-decoration:none;">Хичээл</a>
     <a href="/profile/" style="color:rgba(255,255,255,.85);text-decoration:none;">Профайл</a>
