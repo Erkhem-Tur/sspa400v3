@@ -50,7 +50,7 @@ RANK_CHOICES = [
     ('Дэд ахлагч | Junior Sergeant',         'Дэд ахлагч | Junior Sergeant'),
     ('Ахлагч | Sergeant',                    'Ахлагч | Sergeant'),
     ('Ахлах ахлагч | Senior Sergeant',       'Ахлах ахлагч | Senior Sergeant'),
-    ('Дэслэгч | Junior Lieutenant',          'Дэслэгч | Junior Lieutenant'),
+    ('Дэслэгч | Second Lieutenant',          'Дэслэгч | Second Lieutenant'),
     ('Ахлах дэслэгч | Senior Lieutenant',    'Ахлах дэслэгч | Senior Lieutenant'),
     ('Ахмад | Captain',                      'Ахмад | Captain'),
     ('Хошууч | Major',                       'Хошууч | Major'),
