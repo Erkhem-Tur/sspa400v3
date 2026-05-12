@@ -1,49 +1,55 @@
 {% extends 'lms/base.html' %}
-{% block title %}Мэдээлэл бөглөх – SSPA 400{% endblock %}
+{% block title %}Мэдээлэл бөглөх – ТТХА{% endblock %}
 {% block content %}
-<div style="max-width:480px;margin:40px auto;">
-  <div class="card">
-    <h1 style="text-align:center;margin-bottom:6px;">Мэдээлэл бөглөх</h1>
-    <p style="text-align:center;color:#64748b;font-size:14px;margin-bottom:24px;">Хичээл эхлэхийн өмнө мэдээллээ оруулна уу</p>
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <div class="text-center mb-4">
+          <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+               style="width:56px;height:56px;background:#1b3a6b;">
+            <i class="bi bi-person-badge text-white fs-4"></i>
+          </div>
+          <h5 class="fw-bold" style="color:#1b3a6b;">Мэдээлэл бөглөх</h5>
+          <p class="text-muted small">Хичээл эхлэхийн өмнө мэдээллээ оруулна уу</p>
+        </div>
 
-    {% if form.non_field_errors %}
-      <div class="alert alert-error">{{ form.non_field_errors }}</div>
-    {% endif %}
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger small">{{ form.non_field_errors }}</div>
+        {% endif %}
 
-    <form method="post">
-      {% csrf_token %}
-
-      <div class="form-group">
-        <label>{{ form.full_name.label }}</label>
-        {{ form.full_name }}
-        {% if form.full_name.errors %}<div class="error">{{ form.full_name.errors }}</div>{% endif %}
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label"><i class="bi bi-person-vcard me-1"></i>Бүтэн нэр</label>
+            <input type="text" name="full_name" class="form-control" placeholder="Овог Нэр" value="{{ form.full_name.value|default:'' }}">
+            {% if form.full_name.errors %}<div class="text-danger small mt-1">{{ form.full_name.errors }}</div>{% endif %}
+          </div>
+          <div class="mb-3">
+            <label class="form-label"><i class="bi bi-award me-1"></i>Цол</label>
+            <select name="rank" class="form-select">
+              {% for val, label in form.rank.field.choices %}
+              <option value="{{ val }}" {% if form.rank.value == val %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+            {% if form.rank.errors %}<div class="text-danger small mt-1">{{ form.rank.errors }}</div>{% endif %}
+          </div>
+          <div class="mb-4">
+            <label class="form-label"><i class="bi bi-building me-1"></i>Хэлтэс / Тасаг</label>
+            <select name="department" class="form-select">
+              <option value="">-- Хэлтэсээ сонгоно уу --</option>
+              {% for dept in form.department.field.queryset %}
+              <option value="{{ dept.pk }}" {% if form.department.value == dept.pk|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
+              {% endfor %}
+            </select>
+            {% if form.department.errors %}<div class="text-danger small mt-1">{{ form.department.errors }}</div>{% endif %}
+          </div>
+          <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+            Хадгалаад эхлэх <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+        </form>
       </div>
-
-      <div class="form-group">
-        <label>{{ form.rank.label }}</label>
-        <select name="rank" style="width:100%;padding:10px 14px;border:1.5px solid #cbd5e1;border-radius:10px;font-size:14px;outline:none;background:#fff;">
-          {% for val, label in form.rank.field.choices %}
-          <option value="{{ val }}" {% if form.rank.value == val %}selected{% endif %}>{{ label }}</option>
-          {% endfor %}
-        </select>
-        {% if form.rank.errors %}<div class="error">{{ form.rank.errors }}</div>{% endif %}
-      </div>
-
-      <div class="form-group">
-        <label>{{ form.department.label }}</label>
-        <select name="department" style="width:100%;padding:10px 14px;border:1.5px solid #cbd5e1;border-radius:10px;font-size:14px;outline:none;background:#fff;">
-          <option value="">-- Хэлтэсээ сонгоно уу --</option>
-          {% for dept in form.department.field.queryset %}
-          <option value="{{ dept.pk }}" {% if form.department.value == dept.pk|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
-          {% endfor %}
-        </select>
-        {% if form.department.errors %}<div class="error">{{ form.department.errors }}</div>{% endif %}
-      </div>
-
-      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px;font-size:15px;padding:12px;">
-        Хадгалаад хичээл эхлэх →
-      </button>
-    </form>
+    </div>
   </div>
 </div>
 {% endblock %}

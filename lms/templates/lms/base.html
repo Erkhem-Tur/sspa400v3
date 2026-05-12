@@ -4,89 +4,192 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}ТТХА Англи хэлний сургалт{% endblock %}</title>
+  <title>{% block title %}ТТХА Сургалт{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #f0f4f8; color: #1e293b; min-height: 100vh; }
-    nav {
-      background: linear-gradient(135deg, #0f2744 0%, #1e3a5f 100%);
-      color: #fff; padding: 0 24px;
-      display: flex; align-items: center; justify-content: space-between; height: 64px;
-      box-shadow: 0 3px 12px rgba(0,0,0,.3);
+    :root {
+      --sidebar-width: 250px;
+      --header-height: 56px;
+      --primary: #1b3a6b;
+      --primary-dark: #0f2744;
+      --gold: #c9a227;
     }
-    nav .brand {
-      display: flex; align-items: center; gap: 12px;
-      font-weight: 800; font-size: 16px; letter-spacing: .3px; text-decoration: none; color: #fff;
+    body { background: #f0f4f8; font-family: system-ui, sans-serif; }
+
+    /* HEADER */
+    .app-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1030;
+      height: var(--header-height);
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      display: flex; align-items: center; padding: 0 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.3);
     }
-    nav .brand img { width: 42px; height: 42px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,.3)); }
-    nav .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
-    nav .brand-text .title { font-size: 14px; font-weight: 800; }
-    nav .brand-text .subtitle { font-size: 11px; opacity: .75; font-weight: 500; }
-    nav .links { display: flex; gap: 20px; align-items: center; }
-    nav a { color: rgba(255,255,255,.85); text-decoration: none; font-size: 14px; }
-    nav a:hover { color: #fff; }
-    nav .btn-logout {
-      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
-      color: #fff; padding: 5px 14px; border-radius: 8px; font-size: 13px;
-      cursor: pointer; text-decoration: none;
+    .app-header .logo-wrap {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; color: #fff; flex: 1;
     }
-    nav .btn-logout:hover { background: rgba(255,255,255,.25); }
-    .container { max-width: 960px; margin: 32px auto; padding: 0 16px; }
-    .card {
-      background: #fff; border-radius: 16px; padding: 28px 32px;
-      box-shadow: 0 2px 12px rgba(0,0,0,.07); margin-bottom: 24px;
+    .app-header .logo-wrap img { width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,.4)); }
+    .app-header .brand-name { font-size: 14px; font-weight: 800; line-height: 1.2; }
+    .app-header .brand-sub  { font-size: 10px; opacity: .7; font-weight: 400; }
+    .sidebar-toggle { background: none; border: none; color: #fff; font-size: 20px; margin-right: 12px; cursor: pointer; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .header-right .user-badge {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,.12); border-radius: 20px; padding: 4px 14px 4px 6px;
+      color: #fff; font-size: 13px; text-decoration: none;
     }
-    h1 { font-size: 22px; font-weight: 800; margin-bottom: 16px; color: #1e3a5f; }
-    h2 { font-size: 17px; font-weight: 700; margin-bottom: 12px; color: #334155; }
-    .btn {
-      display: inline-block; padding: 10px 22px; border-radius: 10px;
-      font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none;
-      border: none; transition: opacity .15s;
+    .header-right .user-badge .avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--gold); display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 12px; color: #fff;
     }
-    .btn:hover { opacity: .88; }
-    .btn-primary { background: #1e3a5f; color: #fff; }
-    .btn-gold { background: #d97706; color: #fff; }
-    .btn-outline { background: transparent; border: 2px solid #1e3a5f; color: #1e3a5f; }
-    .form-group { margin-bottom: 16px; }
-    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #475569; }
-    input[type=text], input[type=password], input[type=email], select {
-      width: 100%; padding: 10px 14px; border: 1.5px solid #cbd5e1;
-      border-radius: 10px; font-size: 14px; outline: none; transition: border-color .15s; background: #fff;
+
+    /* SIDEBAR */
+    .app-sidebar {
+      position: fixed; top: var(--header-height); left: 0; bottom: 0;
+      width: var(--sidebar-width); background: var(--primary-dark);
+      overflow-y: auto; z-index: 1020; transition: transform .25s;
+      display: flex; flex-direction: column;
     }
-    input:focus, select:focus { border-color: #1e3a5f; }
-    .error { color: #dc2626; font-size: 13px; margin-top: 4px; }
-    .alert { padding: 12px 16px; border-radius: 10px; font-size: 14px; margin-bottom: 16px; }
-    .alert-error { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
+    .app-sidebar.collapsed { transform: translateX(calc(-1 * var(--sidebar-width))); }
+    .sidebar-nav { padding: 12px 0; flex: 1; }
+    .sidebar-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      color: rgba(255,255,255,.4); padding: 16px 20px 6px; text-transform: uppercase;
+    }
+    .sidebar-nav a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 20px; color: rgba(255,255,255,.75);
+      text-decoration: none; font-size: 14px; transition: all .15s;
+      border-left: 3px solid transparent;
+    }
+    .sidebar-nav a:hover, .sidebar-nav a.active {
+      background: rgba(255,255,255,.08); color: #fff;
+      border-left-color: var(--gold);
+    }
+    .sidebar-nav a i { font-size: 17px; width: 22px; }
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255,255,255,.1);
+    }
+    .sidebar-footer a {
+      display: flex; align-items: center; gap: 8px;
+      color: rgba(255,255,255,.6); font-size: 13px; text-decoration: none;
+    }
+    .sidebar-footer a:hover { color: #fff; }
+
+    /* MAIN */
+    .app-main {
+      margin-left: var(--sidebar-width);
+      margin-top: var(--header-height);
+      padding: 24px;
+      min-height: calc(100vh - var(--header-height));
+      transition: margin-left .25s;
+    }
+    .app-main.expanded { margin-left: 0; }
+
+    /* CARDS */
+    .card { border: none; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+    .card-header { background: #fff; border-bottom: 1px solid #f1f5f9; border-radius: 12px 12px 0 0 !important; font-weight: 700; padding: 14px 20px; }
+    .stat-card { border-radius: 12px; padding: 20px 24px; color: #fff; }
+    .stat-card .stat-num { font-size: 32px; font-weight: 900; }
+    .stat-card .stat-label { font-size: 13px; opacity: .85; margin-top: 2px; }
+
+    /* TABLE */
+    .table th { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #64748b; border-top: none; }
+    .table td { vertical-align: middle; font-size: 14px; }
+    .badge-rank { background: #e8f4fd; color: #1b3a6b; font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+    .badge-score { background: #1b3a6b; color: #fff; font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 700; }
+
+    /* FORM */
+    .form-control, .form-select { border-radius: 8px; border: 1.5px solid #e2e8f0; padding: 10px 14px; font-size: 14px; }
+    .form-control:focus, .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(27,58,107,.1); }
+    .form-label { font-weight: 600; font-size: 13px; color: #475569; margin-bottom: 6px; }
+    .btn-primary { background: var(--primary); border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+
+    @media(max-width: 768px) {
+      .app-sidebar { transform: translateX(calc(-1 * var(--sidebar-width))); }
+      .app-sidebar.mobile-open { transform: translateX(0); }
+      .app-main { margin-left: 0; }
+    }
   </style>
   {% block extra_head %}{% endblock %}
 </head>
 <body>
-<nav>
-  <a href="{% url 'dashboard' %}" class="brand">
-    <img src="{% static 'lms/logo.png' %}" alt="ТТХА лого">
-    <div class="brand-text">
-      <span class="title">Төрийн Тусгай Хамгаалалт</span>
-      <span class="subtitle">Англи хэлний сургалтын систем</span>
+
+<!-- HEADER -->
+<header class="app-header">
+  <button class="sidebar-toggle" id="sidebarToggle"><i class="bi bi-list"></i></button>
+  <a href="{% url 'dashboard' %}" class="logo-wrap">
+    <img src="{% static 'lms/logo.png' %}" alt="ТТХА">
+    <div>
+      <div class="brand-name">Төрийн Тусгай Хамгаалалт</div>
+      <div class="brand-sub">Англи хэлний сургалтын систем</div>
     </div>
   </a>
-  {% if user.is_authenticated %}
-  <div class="links">
-    <a href="{% url 'dashboard' %}">Хичээл</a>
-    <a href="{% url 'profile' %}">Профайл</a>
-    {% if user.is_staff %}
-    <a href="{% url 'departments' %}" style="color:#fbbf24;font-weight:700;">Хэлтэсүүд</a>
+  <div class="header-right">
+    {% if user.is_authenticated %}
+    <a href="{% url 'profile' %}" class="user-badge">
+      <div class="avatar">{{ user.username|first|upper }}</div>
+      <span>{{ user.username }}</span>
+    </a>
     {% endif %}
-    <a href="{% url 'logout' %}" class="btn-logout">Гарах</a>
   </div>
-  {% else %}
-  <div class="links">
-    <a href="{% url 'login' %}">Нэвтрэх</a>
-    <a href="{% url 'register' %}">Бүртгүүлэх</a>
+</header>
+
+<!-- SIDEBAR -->
+<aside class="app-sidebar" id="sidebar">
+  <nav class="sidebar-nav">
+    <div class="sidebar-title">Үндсэн цэс</div>
+    {% if user.is_authenticated %}
+    <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <i class="bi bi-house-door"></i> Нүүр хуудас
+    </a>
+    <a href="{% url 'profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+      <i class="bi bi-person-circle"></i> Профайл
+    </a>
+    {% if user.is_staff %}
+    <div class="sidebar-title">Удирдлага</div>
+    <a href="{% url 'departments' %}" class="{% if request.resolver_match.url_name == 'departments' %}active{% endif %}">
+      <i class="bi bi-building"></i> Хэлтэсүүд
+    </a>
+    <a href="{% url 'admin:index' %}">
+      <i class="bi bi-shield-lock"></i> Admin
+    </a>
+    {% endif %}
+    {% endif %}
+  </nav>
+  <div class="sidebar-footer">
+    {% if user.is_authenticated %}
+    <a href="{% url 'logout' %}"><i class="bi bi-box-arrow-left"></i> Гарах</a>
+    {% else %}
+    <a href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right"></i> Нэвтрэх</a>
+    {% endif %}
   </div>
-  {% endif %}
-</nav>
-<div class="container">
+</aside>
+
+<!-- MAIN -->
+<main class="app-main" id="mainContent">
   {% block content %}{% endblock %}
-</div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const toggle = document.getElementById('sidebarToggle');
+  const sidebar = document.getElementById('sidebar');
+  const main = document.getElementById('mainContent');
+  const isMobile = () => window.innerWidth <= 768;
+  toggle.addEventListener('click', () => {
+    if (isMobile()) {
+      sidebar.classList.toggle('mobile-open');
+    } else {
+      sidebar.classList.toggle('collapsed');
+      main.classList.toggle('expanded');
+    }
+  });
+</script>
+{% block extra_js %}{% endblock %}
 </body>
 </html>
