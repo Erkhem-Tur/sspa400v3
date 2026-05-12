@@ -131,6 +131,11 @@ def profile_view(request):
 
 
 @login_required
+def worksheets_view(request):
+    return render(request, 'lms/worksheets.html')
+
+
+@login_required
 @user_passes_test(lambda u: u.is_staff)
 def department_view(request):
     dept_filter = request.GET.get('dept', '')

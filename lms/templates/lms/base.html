@@ -170,6 +170,9 @@
     <a href="{% url 'profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
       <i class="bi bi-person-circle"></i> Профайл
     </a>
+    <a href="{% url 'worksheets' %}" class="{% if request.resolver_match.url_name == 'worksheets' %}active{% endif %}">
+      <i class="bi bi-journal-text"></i> Worksheets &amp; Tests
+    </a>
     {% if user.is_staff %}
     <div class="sidebar-title">Удирдлага</div>
     <a href="{% url 'departments' %}" class="{% if request.resolver_match.url_name == 'departments' %}active{% endif %}">
