@@ -82,3 +82,30 @@ class UserProgress(models.Model):
     def __str__(self):
         dept = self.department.name if self.department else 'Хэлтэсгүй'
         return f"{self.user.username} ({dept}) – {self.total_score} оноо"
+
+
+class Video(models.Model):
+    title        = models.CharField(max_length=300, verbose_name='Гарчиг')
+    description  = models.TextField(blank=True, verbose_name='Тайлбар')
+    youtube_id   = models.CharField(
+        max_length=20,
+        verbose_name='YouTube видео ID',
+        help_text='YouTube URL-аас авна. Жишээ: youtu.be/dQw4w9WgXcQ → dQw4w9WgXcQ',
+    )
+    order        = models.IntegerField(default=0, verbose_name='Дараалал')
+    is_published = models.BooleanField(default=True, verbose_name='Нийтлэгдсэн')
+    created_at   = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', 'created_at']
+        verbose_name = 'Видео'
+        verbose_name_plural = 'Видеонууд'
+
+    def embed_url(self):
+        return f'https://www.youtube.com/embed/{self.youtube_id}?rel=0&modestbranding=1'
+
+    def thumbnail_url(self):
+        return f'https://img.youtube.com/vi/{self.youtube_id}/hqdefault.jpg'
+
+    def __str__(self):
+        return self.title

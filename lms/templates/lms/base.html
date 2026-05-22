@@ -173,10 +173,16 @@
     <a href="{% url 'worksheets' %}" class="{% if request.resolver_match.url_name == 'worksheets' %}active{% endif %}">
       <i class="bi bi-journal-text"></i> Worksheets &amp; Tests
     </a>
+    <a href="{% url 'videos' %}" class="{% if request.resolver_match.url_name == 'videos' %}active{% endif %}">
+      <i class="bi bi-play-circle"></i> Видео хичээлүүд
+    </a>
     {% if user.is_staff %}
     <div class="sidebar-title">Удирдлага</div>
     <a href="{% url 'departments' %}" class="{% if request.resolver_match.url_name == 'departments' %}active{% endif %}">
-      <i class="bi bi-building"></i> Хэлтэсүүд
+      <i class="bi bi-bar-chart-line"></i> Суралцагчийн явц
+    </a>
+    <a href="{% url 'dept_manage' %}" class="{% if request.resolver_match.url_name == 'dept_manage' or request.resolver_match.url_name == 'dept_edit' %}active{% endif %}">
+      <i class="bi bi-building-gear"></i> Хэлтэс удирдах
     </a>
     <a href="{% url 'admin:index' %}">
       <i class="bi bi-shield-lock"></i> Admin

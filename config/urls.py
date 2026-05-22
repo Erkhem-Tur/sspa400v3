@@ -15,4 +15,7 @@ urlpatterns = [
     path('profile/', views.profile_view, name='profile'),
     path('worksheets/', views.worksheets_view, name='worksheets'),
     path('departments/', views.department_view, name='departments'),
+    path('videos/', views.videos_view, name='videos'),
+    path('dept-manage/', views.dept_manage_view, name='dept_manage'),
+    path('dept-manage/<int:dept_id>/edit/', views.dept_edit_view, name='dept_edit'),
 ]

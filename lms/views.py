@@ -8,7 +8,7 @@ from django.db.models import Avg, Sum, Count
 from django.utils import timezone
 
 from .forms import RegisterForm, LoginForm, ProfileForm
-from .models import Lesson, QuizResult, UserProgress, Department
+from .models import Lesson, QuizResult, UserProgress, Department, Video
 
 
 def register_view(request):
@@ -160,6 +160,59 @@ def profile_view(request):
 @login_required
 def worksheets_view(request):
     return render(request, 'lms/worksheets.html')
+
+
+@login_required
+def videos_view(request):
+    videos = Video.objects.filter(is_published=True)
+    return render(request, 'lms/videos.html', {'videos': videos})
+
+
+# ── Department management (web UI, staff only) ──────────────────────────────
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def dept_manage_view(request):
+    """List departments + inline add form."""
+    error = None
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        if not name:
+            error = 'Хэлтсийн нэр хоосон байна.'
+        elif Department.objects.filter(name__iexact=name).exists():
+            error = f'"{name}" нэртэй хэлтэс аль хэдийн байна.'
+        else:
+            max_order = Department.objects.count()
+            Department.objects.create(name=name, order=max_order)
+            return redirect('dept_manage')
+    departments = Department.objects.all()
+    return render(request, 'lms/dept_manage.html', {
+        'departments': departments,
+        'error': error,
+    })
+
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def dept_edit_view(request, dept_id):
+    dept = get_object_or_404(Department, pk=dept_id)
+    error = None
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'delete':
+            dept.delete()
+            return redirect('dept_manage')
+        name = request.POST.get('name', '').strip()
+        if not name:
+            error = 'Нэр хоосон байна.'
+        elif Department.objects.filter(name__iexact=name).exclude(pk=dept_id).exists():
+            error = f'"{name}" нэртэй хэлтэс аль хэдийн байна.'
+        else:
+            dept.name = name
+            dept.order = int(request.POST.get('order', dept.order))
+            dept.save()
+            return redirect('dept_manage')
+    return render(request, 'lms/dept_edit.html', {'dept': dept, 'error': error})
 
 
 @login_required
